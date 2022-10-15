@@ -3,12 +3,14 @@
 #include <chrono>
 #include <cmath>
 #include <filesystem>
+#include <omp.h>
 
 
 using Matrix = std::vector<std::vector<double>>;
 const std::string InputDataFile{ "../../Test.b" };
 const std::string ResultsFile{ "../../Results.b" };
 const size_t MBMultiplier = 1024 * 1024;
+const size_t ThreadsNumber = 4;
 
 
 void ReadMatricesFromFile(const std::string& path, std::vector<Matrix>& matrices)
@@ -61,6 +63,7 @@ ForwardIt MaxElement(ForwardIt itFirst, ForwardIt itLast)
 
 void CalculateMaxElementsSquare(const std::vector<Matrix>& matrices, std::vector<std::vector<double>>& maxSquaresVectors)
 {
+#pragma omp parallel for num_threads(ThreadsNumber)
     for (size_t i = 0; i < matrices.size(); ++i)
     {
         maxSquaresVectors[i].resize(matrices[i].size());
@@ -77,7 +80,7 @@ void CalculateMaxElementsSquare(const std::vector<Matrix>& matrices, std::vector
     }
 }
 
-void SaveResults(const std::string& path, const std::vector<std::vector<double>>& vectors, const std::chrono::duration<double> elapsedSeconds)
+void SaveResults(const std::string& path, const std::vector<std::vector<double>>& vectors, const double elapsedSeconds)
 {
     std::ofstream file(path, std::ofstream::binary);
     if (!file.is_open())
@@ -92,7 +95,7 @@ void SaveResults(const std::string& path, const std::vector<std::vector<double>>
     }
 
     const auto fileSizeInBytes = std::filesystem::file_size(InputDataFile);
-    file << "\nElapsed time: " << elapsedSeconds.count() << "s for data of size: " << fileSizeInBytes 
+    file << "\nElapsed time: " << elapsedSeconds << "s for data of size: " << fileSizeInBytes 
         << " bytes (" << fileSizeInBytes / MBMultiplier << ") MB.";
 
     file.close();
@@ -109,14 +112,14 @@ int main()
     ReadMatricesFromFile(InputDataFile, matrices);
 
     std::vector<std::vector<double>> maxSquaresVectors(matrices.size());
-    auto start = std::chrono::steady_clock::now();
+    auto start = omp_get_wtime();
     CalculateMaxElementsSquare(matrices, maxSquaresVectors);
-    auto end = std::chrono::steady_clock::now();
-    std::chrono::duration<double> elapsedSeconds = end - start;
+    auto end = omp_get_wtime();
+    double elapsedSeconds = end - start;
 
     SaveResults(ResultsFile, maxSquaresVectors, elapsedSeconds);
 
     const auto fileSizeInBytes = std::filesystem::file_size(InputDataFile);
-    std::cout << "elapsed time: " << elapsedSeconds.count() << "s for data of size: "
+    std::cout << "elapsed time: " << elapsedSeconds << "s for data of size: "
         << fileSizeInBytes << " bytes (" << fileSizeInBytes / MBMultiplier << ") MB.\n";
 }
