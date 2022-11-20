@@ -47,7 +47,7 @@ __global__ void MaxElement(double* data, int* offsets, double* results, int resu
 }
 
 
-void flattenMatricesAndCalculateOffsets(double* data, const std::vector<std::vector<double>>& matrices, int* offsets)
+void FlattenMatricesAndCalculateOffsets(double* data, const std::vector<std::vector<double>>& matrices, int* offsets)
 {
     double* currentData = data;
 
@@ -78,7 +78,7 @@ void ArrayTo2DVector(double* results, std::vector<std::vector<double>>& maxSquar
     }
 }
 
-void prepareData(size_t& dataSize, size_t& offsetsSize, size_t& resultsSize,
+void PrepareData(size_t& dataSize, size_t& offsetsSize, size_t& resultsSize,
     const std::vector<std::vector<double>>& matrices, std::vector<std::vector<double>>& maxSquaresVectors)
 {
     for (size_t matrixId = 0; matrixId < matrices.size(); ++matrixId)
@@ -103,7 +103,7 @@ double CalculateMaxElementsSquare(const std::vector<std::vector<double>>& matric
     size_t dataSize = 0;
     size_t offsetsSize = 0;
     size_t resultsSize = 0;
-    prepareData(dataSize, offsetsSize, resultsSize, matrices, maxSquaresVectors);
+    PrepareData(dataSize, offsetsSize, resultsSize, matrices, maxSquaresVectors);
 
     double* data = (double*)malloc(sizeof(double) * dataSize);
     int* offsets = (int*)malloc(sizeof(int) * offsetsSize);
@@ -116,7 +116,7 @@ double CalculateMaxElementsSquare(const std::vector<std::vector<double>>& matric
     gpuAssert(cudaMalloc((void**)&deviceOffsets, sizeof(int) * offsetsSize));
     gpuAssert(cudaMalloc((void**)&deviceResults, sizeof(double) * resultsSize));
 
-    flattenMatricesAndCalculateOffsets(data, matrices, offsets);
+    FlattenMatricesAndCalculateOffsets(data, matrices, offsets);
 
     cudaMemcpy(deviceData, data, sizeof(double) * dataSize, cudaMemcpyHostToDevice);
     cudaMemcpy(deviceOffsets, offsets, sizeof(int) * offsetsSize, cudaMemcpyHostToDevice);
