@@ -8,8 +8,6 @@
 #include "device_launch_parameters.h"
 #include "cuda.h"
 #include "kernel.h"
-//#include "helper_functions.h"
-//#include "helper_cuda.h"
 
 
 const auto NumThreads = 1024;
@@ -127,32 +125,14 @@ double CalculateMaxElementsSquare(const std::vector<std::vector<double>>& matric
     const auto gridSize = static_cast<int>((resultsSize + NumThreads - 1) / NumThreads);
     const auto blockSize = static_cast<int>(NumThreads);
 
-   /* for (int i = 0; i < dataSize; ++i)
-    {
-        std::cout << data[i] << ' ';
-    }
-    std::cout << std::endl;
-
-    for (int i = 0; i < offsetsSize; ++i)
-    {
-        std::cout << offsets[i] << ' ';
-    }
-    std::cout << std::endl;*/
-
     cudaEventRecord(start);
     MaxElement<<<gridSize, blockSize>>>(deviceData, deviceOffsets, deviceResults, static_cast<int>(resultsSize));
-    //cudaDeviceSynchronize();
     cudaEventRecord(stop);
     gpuAssert(cudaEventSynchronize(stop));
 
     gpuAssert(cudaMemcpy(results, deviceResults, sizeof(double) * resultsSize, cudaMemcpyDeviceToHost));
-
-    /*for (int i = 0; i < resultsSize; ++i)
-    {
-        std::cout << results[i] << ' ';
-    }
-    std::cout << std::endl;*/
     ArrayTo2DVector(results, maxSquaresVectors);
+
     gpuAssert(cudaFree(deviceData));
     gpuAssert(cudaFree(deviceResults));
     gpuAssert(cudaFree(deviceOffsets));
