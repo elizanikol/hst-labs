@@ -1,9 +1,9 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <random>
+#include <algorithm>
 
-
-const std::string InputDataFile{"../../Test.b"};
+const std::string InputDataFile{ "../Test.b" };
 const size_t MBMultiplier = 1024 * 1024;
 const size_t MaxRowsNumber = 50;
 const size_t MinRowsNumber = 2;
@@ -38,7 +38,7 @@ void GenerateMatricesAndSaveThemToFile(const std::string& path, const size_t fil
     }
 
     file.close();
-    if (!file) 
+    if (!file)
     {
         std::cerr << "Writing to file: " << path << " failed\n";
         std::exit(EXIT_FAILURE);
