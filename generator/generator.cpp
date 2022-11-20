@@ -5,7 +5,7 @@
 
 const std::string InputDataFile{"../Test.b"};
 const size_t MBMultiplier = 1024 * 1024;
-const size_t MaxRowsNumber = 5;
+const size_t MaxRowsNumber = 50;
 const size_t MinRowsNumber = 2;
 const size_t MaxElementValue = 10;
 const size_t MinElementValue = 0;
